@@ -3,33 +3,36 @@ package walls;
 import java.awt.Graphics;
 
 public abstract class Item {
-	protected int x;
-	protected int y;
-	protected double length;
+	protected int startx;
+	protected int starty;
+	protected int endx;
+	protected int endy;
+	protected double length = 0;
 	
-	public Item(int x, int y, double length){
+	public Item(int startx, int starty, int endx, int endy){
 		
-		this.x = x;
-		this.y = y;
-		this.length = length;
+		this.startx = startx;
+		this.starty = starty;
+		this.endx = endx;
+		this.endy = endy;
 		
 	}
 
 	public abstract void paint(Graphics g);
-	public int getX() {
-		return x;
+	public int getStartX() {
+		return startx;
 	}
 
-	public void setX(int x) {
-		this.x = x;
+	public void setStartX(int x) {
+		this.startx = x;
 	}
 
-	public int getY() {
-		return y;
+	public int getStartY() {
+		return starty;
 	}
 
-	public void setY(int y) {
-		this.y = y;
+	public void setStartY(int y) {
+		this.starty = y;
 	}
 
 	public double getLength() {
@@ -39,6 +42,26 @@ public abstract class Item {
 	public void setLength(double length) {
 		this.length = length;
 	}
+
+	public int getEndx() {
+		return endx;
+	}
+
+	public void setEndx(int endx) {
+		this.endx = endx;
+	}
+
+	public int getEndy() {
+		return endy;
+	}
+
+	public void setEndy(int endy) {
+		this.endy = endy;
+	}
 	
+	public void setEndCoords(int endx,int endy){
+		this.endx = endx;
+		this.endy = endy;
+	}
 	
 }
