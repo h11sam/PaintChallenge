@@ -7,6 +7,7 @@ public abstract class Item {
 	protected int starty;
 	protected int endx;
 	protected int endy;
+	private double[] newCoords; // used to work out where each item is in real life
 	protected double length = 0;
 	
 	public Item(int startx, int starty, int endx, int endy){
@@ -62,6 +63,14 @@ public abstract class Item {
 	public void setEndCoords(int endx,int endy){
 		this.endx = endx;
 		this.endy = endy;
+	}
+
+	public double[] getNewCoords() {
+		return newCoords;
+	}
+
+	public void setNewCoords(double[] newCoords) {
+		this.newCoords = newCoords;
 	}
 	
 }

@@ -1,7 +1,9 @@
-package test;
+package gui;
 
 import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
+import javax.swing.BoxLayout;
+import java.awt.BorderLayout;
 
 public class Main {
 
@@ -9,8 +11,15 @@ public class Main {
 
 	public Main() {
 
+		
+		DisInput input = new DisInput();
 		frame = new JFrame("Paint");
-		frame.add(new Panel());
+		Panel panel = new Panel(input);
+		input.setPanel(panel);
+		panel.setLayout(new BorderLayout(0, 0));
+		frame.getContentPane().add(panel);
+		SideBar side = new SideBar(input);
+		frame.add(side,BorderLayout.EAST);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.pack();
 	}

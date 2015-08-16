@@ -1,4 +1,4 @@
-package test;
+package gui;
 
 import java.awt.Color;
 import java.awt.Dimension;
@@ -11,78 +11,92 @@ import java.awt.event.MouseMotionListener;
 import java.util.ArrayList;
 
 import javax.swing.JPanel;
+import javax.swing.SwingUtilities;
 
 import walls.Wall;
 
 public class Panel extends JPanel {
 
+	public enum Action {
+		NOTHING, MOVING, FINISHED
+	}
+
+	private Action action = Action.NOTHING;
 	private static final int snapVal = 10;
-	boolean ctrlPress = false;
 	boolean xory = true; // true if x, false is y direction
-	int startx = 0;
-	int starty = 0;
-//	int endx = 0;
-//	int endy = 0;
+	private int startx = 0;
+	private int starty = 0;
+	private Panel panel;
+	private DisInput input;
 	Wall currentWall;
 	ArrayList<Wall> walls = new ArrayList<Wall>();
 
-	public Panel() {
+	public Panel(DisInput input) {
 
 		super();
+		this.input = input;
 		setPreferredSize(new Dimension(500, 500));
-		setBackground(Color.red);
+		setBackground(Color.white);
 		setOpaque(true);
 		Mouse mouse = new Mouse();
 		addMouseListener(mouse);
 		addMouseMotionListener(mouse);
-		addKeyListener(new MyKeyListener());
 		setFocusable(true);
 		currentWall = new Wall(0, 0, 0, 0);
+		panel = this;
 	}
 
 	public void paint(Graphics g) {
 		paintComponent(g);
 		Color c = g.getColor();
-		g.setColor(Color.white);
+		g.setColor(Color.black);
 		currentWall.paint(g);
 		walls.stream().forEach(wall -> {
 			wall.paint(g);
 		});
-		// g.drawLine(startx, starty, endx, endy);
 		g.setColor(c);
 	}
 
 	public class Mouse implements MouseListener, MouseMotionListener {
 
-		int pc = 0; // positive gradient
-		int nc = 0; // negative gradient
-		boolean drawing = false; // are we currently drawing the shape of the
-									// room
-
 		@Override
 		public void mouseClicked(MouseEvent e) {
 
-			if (drawing) {
-				// adding in another wall to the list
-				walls.add(currentWall);
-				int startx = currentWall.getEndx();
-				int starty = currentWall.getEndy();
-				currentWall = new Wall(startx, starty, startx, starty);
-
-			} else {
+			switch (action) {
+			case NOTHING:
 				int x = e.getX();
 				int y = e.getY();
 				startx = x;
 				starty = y;
-				drawing = true;
+				action = Action.MOVING;
 				System.out.println("Mouse pressed " + e.getX() + "," + e.getY());
 				currentWall.setStartX(x); // TODO shorten this to one method
 				currentWall.setStartY(y);
-				// startx = e.getX();
-				// starty = e.getY();
-				pc = y - x;
-				nc = x + x;
+				break;
 
+			case MOVING:
+				walls.add(currentWall);
+				Wall lastWall = currentWall;
+				int startx = currentWall.getEndx();
+				int starty = currentWall.getEndy();
+				currentWall = new Wall(startx, starty, startx, starty);
+
+				// check to see whether we have come back to the start
+				if (lastWall.getEndx() == getStartx() && lastWall.getEndy() == getStarty()) {
+					System.out.println("Run wall lengths gui");
+					SwingUtilities.invokeLater(new Runnable() {
+						public void run() {
+							input.getWallLength();
+						}
+					});
+					action = Action.FINISHED;
+				}
+				break;
+			case FINISHED:
+				System.out.println("Done");
+				break;
+			default:
+				break;
 			}
 
 		}
@@ -117,78 +131,55 @@ public class Panel extends JPanel {
 
 		@Override
 		public void mouseMoved(MouseEvent e) {
-			if (drawing) {
+
+			switch (action) {
+			case MOVING:
 				moveCurrentLine(e);
+				break;
+			default:
+				break;
 			}
 
 		}
 
+		/**
+		 * Moves the current wall that is being selected. It only moves in the x
+		 * or y direction, so walls can only be 90 degrees from each other
+		 * 
+		 * @param e
+		 */
 		private void moveCurrentLine(MouseEvent e) {
 			// System.out.println("Mouse moved " + e.getX() + "," + e.getY());
 			int x = e.getX();
 			int y = e.getY();
-			setFocusable(true);
-
-			if (Math.abs(currentWall.getStartX() - x) < Math.abs(currentWall.getStartY() - y))
-				currentWall.setEndCoords(currentWall.getStartX(), y);
-			else
-				currentWall.setEndCoords(x, currentWall.getStartY());
-
 			int highY = y + snapVal;
 			int highX = x + snapVal;
 			int lowY = y - snapVal;
 			int lowX = x - snapVal;
-			
-			if(lowY < starty && starty < highY)
-				currentWall.setEndy(starty);
-			else {
-				if(lowX< startx && startx < highX)
+			setFocusable(true);
+
+			if (Math.abs(currentWall.getStartX() - x) < Math.abs(currentWall.getStartY() - y)) {
+				currentWall.setEndCoords(currentWall.getStartX(), y);
+				if (lowY < starty && starty < highY)
+					currentWall.setEndy(starty);
+
+			} else {
+				currentWall.setEndCoords(x, currentWall.getStartY());
+				if (lowX < startx && startx < highX)
 					currentWall.setEndx(startx);
+
 			}
-				
-			
-//			int coordy = x + pc;
-//			int dist = Math.abs(coordy - y);
-//			int ncoordy = -x + nc;
-//			int ndist = Math.abs(ncoordy - y);
-//
-//			System.out.println("Dist: " + coordy + "," + endy + "--" + dist);
-//			if (xory)
-//				currentWall.setEndCoords(x, currentWall.getStartY());
-//			else
-//				currentWall.setEndCoords(currentWall.getStartX(), y);
-//
-//			// checking diagonally
-//			if (dist < 20)
-//				currentWall.setEndCoords(x, coordy);
-//			if (ndist < 20)
-//				currentWall.setEndCoords(x, ncoordy);
 
 			repaint();
 		}
 
 	}
 
-	public class MyKeyListener implements KeyListener {
+	public int getStartx() {
+		return startx;
+	}
 
-		int x = -1;
-		int y = -1;
-
-		@Override
-		public void keyTyped(KeyEvent e) {
-		}
-
-		@Override
-		public void keyPressed(KeyEvent e) {
-			if (e.getKeyCode() == KeyEvent.VK_CONTROL) {
-				ctrlPress = true;
-
-			}
-		}
-
-		@Override
-		public void keyReleased(KeyEvent e) {
-			ctrlPress = false;
-		}
+	public int getStarty() {
+		return starty;
 	}
 }
