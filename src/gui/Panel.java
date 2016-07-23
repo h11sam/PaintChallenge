@@ -3,8 +3,6 @@ package gui;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
@@ -15,8 +13,20 @@ import javax.swing.SwingUtilities;
 
 import walls.Wall;
 
+/**
+ * Panel that shows the drawing of the room.
+ * 
+ * @author HughSa
+ *
+ */
+@SuppressWarnings("serial")
 public class Panel extends JPanel {
 
+	/*
+	 * Enum used to show what action is currently being done by the user when we
+	 * are drawing the shape. NOTHING: The user hasn't started drawing the shape
+	 * MOVING: The user is currently drawing
+	 */
 	public enum Action {
 		NOTHING, MOVING, FINISHED
 	}
@@ -24,14 +34,15 @@ public class Panel extends JPanel {
 	private Action action = Action.NOTHING;
 	private static final int snapVal = 10;
 	boolean xory = true; // true if x, false is y direction
-	private int startx = 0;
+	private int startx = 0; // where the user initially clicked on
 	private int starty = 0;
-	private Panel panel;
-	private DisInput input;
-	Wall currentWall;
-	ArrayList<Wall> walls = new ArrayList<Wall>();
+	private Calculate input;
+	private Wall currentWall; // The current wall that is being drawn at the
+								// moment
+	private ArrayList<Wall> walls = new ArrayList<Wall>(); // The rest of the
+													// walls
 
-	public Panel(DisInput input) {
+	public Panel(Calculate input) {
 
 		super();
 		this.input = input;
@@ -43,7 +54,6 @@ public class Panel extends JPanel {
 		addMouseMotionListener(mouse);
 		setFocusable(true);
 		currentWall = new Wall(0, 0, 0, 0);
-		panel = this;
 	}
 
 	public void paint(Graphics g) {
@@ -51,7 +61,7 @@ public class Panel extends JPanel {
 		Color c = g.getColor();
 		g.setColor(Color.black);
 		currentWall.paint(g);
-		walls.stream().forEach(wall -> {
+		getWalls().stream().forEach(wall -> {
 			wall.paint(g);
 		});
 		g.setColor(c);
@@ -63,6 +73,7 @@ public class Panel extends JPanel {
 		public void mouseClicked(MouseEvent e) {
 
 			switch (action) {
+			// First press
 			case NOTHING:
 				int x = e.getX();
 				int y = e.getY();
@@ -73,9 +84,9 @@ public class Panel extends JPanel {
 				currentWall.setStartX(x); // TODO shorten this to one method
 				currentWall.setStartY(y);
 				break;
-
+			// User has pressed again so we will save the current wall
 			case MOVING:
-				walls.add(currentWall);
+				getWalls().add(currentWall);
 				Wall lastWall = currentWall;
 				int startx = currentWall.getEndx();
 				int starty = currentWall.getEndy();
@@ -92,6 +103,7 @@ public class Panel extends JPanel {
 					action = Action.FINISHED;
 				}
 				break;
+			// We have reached the start again
 			case FINISHED:
 				System.out.println("Done");
 				break;
@@ -158,8 +170,11 @@ public class Panel extends JPanel {
 			int lowX = x - snapVal;
 			setFocusable(true);
 
+			// first if is see whether we are moving into the x or y direction
 			if (Math.abs(currentWall.getStartX() - x) < Math.abs(currentWall.getStartY() - y)) {
 				currentWall.setEndCoords(currentWall.getStartX(), y);
+				// checks to see if we are close to the start point either in x
+				// coords or y coords
 				if (lowY < starty && starty < highY)
 					currentWall.setEndy(starty);
 
@@ -181,5 +196,13 @@ public class Panel extends JPanel {
 
 	public int getStarty() {
 		return starty;
+	}
+
+	public ArrayList<Wall> getWalls() {
+		return walls;
+	}
+
+	public void setWalls(ArrayList<Wall> walls) {
+		this.walls = walls;
 	}
 }

@@ -2,7 +2,6 @@ package gui;
 
 import javax.swing.JPanel;
 
-import java.awt.Dimension;
 import java.awt.GridLayout;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -14,8 +13,15 @@ import javax.swing.SwingConstants;
 import javax.swing.JTextPane;
 import javax.swing.SpinnerNumberModel;
 import javax.swing.JSpinner;
-import javax.swing.JSpinner.DefaultEditor;
 
+/**
+ * Contains the textboxes for the user to input in the required information.
+ * Including a calculate button
+ * 
+ * @author HughSa
+ *
+ */
+@SuppressWarnings("serial")
 public class SideBar extends JPanel {
 	private JTextField txtMOfPaint;
 	private JLabel lblMOfPaint;
@@ -28,18 +34,18 @@ public class SideBar extends JPanel {
 	private JLabel lblHeightOfRoom;
 	private JTextField heightOfRoom;
 
-	private DisInput input;
+//	private Calculate input;
 
-	public SideBar(DisInput input) {
+	public SideBar(Calculate input) {
 
-		this.input = input;
+//		this.input = input;
 
 		setLayout(new GridLayout(0, 1, 0, 0));
 
 		txtpnPleaseDrawThe = new JTextPane();
 		txtpnPleaseDrawThe.setEditable(false);
-		txtpnPleaseDrawThe
-				.setText("Please draw the shape of the room on the left\n and ensure that the wall join at the start");
+		txtpnPleaseDrawThe.setText(
+				"Please draw the shape of the room on the left\n and ensure that the wall joins back at the start");
 		add(txtpnPleaseDrawThe);
 
 		lblHeightOfRoom = new JLabel("Height of Room");
@@ -96,6 +102,8 @@ public class SideBar extends JPanel {
 				double doors = 0;
 				double vol = 0.0;
 				double coat = 0;
+				// check to make sure none of the values inputed by the user is
+				// incorrect
 				try {
 
 					height = Double.valueOf(heightOfRoom.getText());
@@ -110,8 +118,15 @@ public class SideBar extends JPanel {
 							"One or more of the values is of the wrong type. Please try again");
 					return;
 				}
-				System.out.println("Height: " + height);
-				input.calculate(height, windows, doors, vol, coat);
+				// System.out.println("Height: " + height);
+				try {
+					double[] vals = input.calculate(height, windows, doors, vol, coat);
+					JOptionPane.showMessageDialog(null, "Area of the floor: " + vals[0]
+							+ "\nAmount of paint required: " + vals[1] + "\nVolume of room: " + vals[2]);
+				} catch (Exception e1) {
+					JOptionPane.showMessageDialog(null, e1.getMessage());
+
+				}
 
 			}
 		});

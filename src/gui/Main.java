@@ -2,9 +2,13 @@ package gui;
 
 import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
-import javax.swing.BoxLayout;
 import java.awt.BorderLayout;
 
+/**
+ * Class that sets up the gui.
+ * @author HughSa
+ *
+ */
 public class Main {
 
 	private JFrame frame;
@@ -12,14 +16,14 @@ public class Main {
 	public Main() {
 
 		
-		DisInput input = new DisInput();
+		Calculate input = new Calculate();
 		frame = new JFrame("Paint");
 		Panel panel = new Panel(input);
 		input.setPanel(panel);
 		panel.setLayout(new BorderLayout(0, 0));
 		frame.getContentPane().add(panel);
 		SideBar side = new SideBar(input);
-		frame.add(side,BorderLayout.EAST);
+		frame.getContentPane().add(side,BorderLayout.EAST);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.pack();
 	}
